@@ -4,8 +4,13 @@ import ejemplo.spring.miapp.dto.limpianumeros.LimpiaNumerosRequestDto;
 import ejemplo.spring.miapp.dto.limpianumeros.LimpiaNumerosResponseDto;
 import ejemplo.spring.miapp.dto.operar.OperarRequestDto;
 import ejemplo.spring.miapp.dto.operar.OperarResponseDto;
+import ejemplo.spring.miapp.dto.superstream.SuperStreamRequestDto;
+import ejemplo.spring.miapp.dto.superstream.SuperStreamResponseDto;
 import ejemplo.spring.miapp.service.OperacionService;
+import ejemplo.spring.miapp.service.SuperStreamService;
 import ejemplo.spring.miapp.service.impl.OperacionServiceImpl;
+import ejemplo.spring.miapp.service.impl.SuperStreamServiceImpl;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MiPrimerControlador {
 
   private OperacionService operacionService = new OperacionServiceImpl();
+  private SuperStreamService superStreamService = new SuperStreamServiceImpl();
 
   @GetMapping("/hola-mundo")
   public String handleGetHolaMundo() {
@@ -63,5 +69,24 @@ public class MiPrimerControlador {
         .collect(Collectors.toSet());
     limpiaNumerosResponseDto.setNumerosSinRepetir(numerosSinRepetir);
     return limpiaNumerosResponseDto;
+  }
+
+  @PostMapping("/super-stream")
+  public SuperStreamResponseDto handleSuperStream(
+      @RequestBody SuperStreamRequestDto superStreamRequestDto) {
+    SuperStreamResponseDto superStreamResponseDto = new SuperStreamResponseDto();
+    List<Integer> numerosOriginales = superStreamRequestDto.getNumeros();
+    List<Integer> numerosParesElevadosAlCuadrado = numerosOriginales
+        .stream()
+        .map(numero -> superStreamService.elevarAlCuadrado(numero, true))
+        .toList();
+    List<Integer> numerosImparesElevadosAlCuadrado = numerosOriginales
+        .stream()
+        .map(numero -> superStreamService.elevarAlCuadrado(numero, false))
+        .toList();
+    superStreamResponseDto.setNumeros(numerosOriginales);
+    superStreamResponseDto.setNumerosParesAlCuadrado(numerosParesElevadosAlCuadrado);
+    superStreamResponseDto.setNumerosImparesAlCuadrado(numerosImparesElevadosAlCuadrado);
+    return  superStreamResponseDto;
   }
 }
